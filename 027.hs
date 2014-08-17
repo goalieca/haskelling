@@ -49,7 +49,7 @@ consecutive list = length $ takeWhile (\x -> x `elem` (primes 1000)) list
 
 -- generates all a*b and the number of consecutive primes
 generator :: [(Int,Int)]
-generator = [(a*b, consecutive (list a b)) | a<-[-999..999], b<-[-999..999]]
+generator = [(a*b, consecutive (list a b)) | a<-[-999..999], b<-(primes 1000), a+b > 0]
 
 -- finds the (a*b, # consecutives)
 findMax :: [(Int,Int)] -> (Int,Int)
