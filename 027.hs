@@ -10,7 +10,7 @@ Using computers, the incredible formula  n²  79n + 1601 was discovered, which p
 
 Considering quadratics of the form:
 
-n² + an + b, where |a|  1000 and |b|  1000
+n² + an + b, where |a| < 1000 and |b| < 1000
 
 where |n| is the modulus/absolute value of n
 e.g. |11| = 11 and |4| = 4
@@ -18,6 +18,7 @@ Find the product of the coefficients, a and b, for the quadratic expression that
 --}
 
 import Data.Array
+import Data.List
 
 -- borrowed from 050.hs
 primes :: Int -> [Int]
@@ -34,8 +35,26 @@ primes n
     in
     drop 2 (filter (flags!) [0..n - 1])
 
+-- magic eulerian formula
+quadratic :: Int -> Int -> Int -> Int
 quadratic a b n = n*n + a*n + b
 
+-- [y] = f([x])
+list :: Int -> Int -> [Int]
+list a b = [ quadratic a b n | n <- [0..1000] ]
 
+-- counts consectives
+consecutive :: [Int] -> Int
+consecutive list = length $ takeWhile (\x -> x `elem` (primes 1000)) list
 
-main = print $ maximum $ consecutive
+-- generates all a*b and the number of consecutive primes
+generator :: [(Int,Int)]
+generator = [(a*b, consecutive (list a b)) | a<-[-999..999], b<-[-999..999]]
+
+-- finds the (a*b, # consecutives)
+findMax :: [(Int,Int)] -> (Int,Int)
+findMax list = maximumBy comp list where
+    comp (a,b) (c,d) = compare b d
+
+-- :)
+main = print $ findMax generator
