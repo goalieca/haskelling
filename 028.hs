@@ -34,7 +34,10 @@ import Data.Map
 -- n are the squares (diagonal going top right)
 -- 500 because that's (1001-1)/2. work from center to top half. 
 -- flatten that equation from above to a polynomial
-diag = [ 4*n*n-6*n+6 | m<-[1..500], let n=(1+2*m) ]
+-- s = sum, n = left
+diags s 0 = s
+diags s n = diags (s+(4*x*x-6*x+6)) (n-1) where
+    x = 1 + 2 * n
 
 -- add the center "1" box and sum the list of corners
-main = print $ 1 + (sum diag)
+main = print $ 1 + (diags 0 500)
