@@ -8,16 +8,16 @@ How many circular primes are there below one million?
 --}
 
 import Data.Array
-import Data.Set
+import qualified Data.HashSet as HashSet
 
---copied from 050.hs
-primes :: Int -> [Int]
-{-# NOINLINE primes #-}
-primes n 
+--copied from 050.hs (the bottleneck of the whole operation!!)
+primes_gen :: Int -> [Int]
+{-# NOINLINE primes_gen #-}
+primes_gen n 
   | n <= 2    = []
   | otherwise = 
     let
-      sqrPrimes = primes (ceiling (sqrt (fromIntegral n)))
+      sqrPrimes = primes_gen (ceiling (sqrt (fromIntegral n)))
       sieves    = concat
             [[2 * p, 3 * p..n - 1] | p <- sqrPrimes]
       sieves'   = zip sieves (repeat False)
@@ -25,23 +25,23 @@ primes n
     in
     drop 2 (filter (flags!) [0..n - 1])
 
---copied from 034.hs (comes out in reverse order.. but that's fine)
-digits = map (`mod` 10) . takeWhile (> 0) . iterate (`div` 10)
+--copied from 034.hs and reversed to be in right order
+digits = reverse . map (`mod` 10) . takeWhile (> 0) . iterate (`div` 10)
 
 --handles reverse ordered list from digits
-undigits [] = 0
-undigits x:xs = xs + (10 * undigits xs)
+(*|) a b = a * 10 + b
+undigits xs = foldl (*|) 0 xs
 
 --rotate a reversed list with this still rotates it
 rotate (x:xs) = xs ++ [x]
 
 --cycles through every possible option
-rotation_list x = take (length x) $ undigits $ rotate x
+rotation_list x = map undigits $ take (length x) $ iterate rotate x
 
---now to find membership (throw into a hashmap to avoid linear search)
-circle_primes
-    where setOfPrimes = fromList primes
+--now to find membership in primes list
+-- TODO: redundant checks for circulars (should add all rotations after first one passes, not check again)
+circular n = HashSet.filter (\x -> (all (\y-> y `HashSet.member` primes) (rotation_list (digits x)))) primes
+                where primes = HashSet.fromList (primes_gen n)
 
-
-main = do
-    print $ primes 1000000
+--count number of primes :)
+main = print $ HashSet.size $ circular 1000000
