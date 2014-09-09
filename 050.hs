@@ -10,30 +10,23 @@ The longest sum of consecutive primes below one-thousand that adds to a prime, c
 Which prime, below one-million, can be written as the sum of the most consecutive primes?
 --}
 
-import Data.Array
+import Data.Numbers.Primes
 
-primes :: Int -> [Int]
-{-# NOINLINE primes #-}
-primes n 
-  | n <= 2    = []
-  | otherwise = 
-    let
-      sqrPrimes = primes (ceiling (sqrt (fromIntegral n)))
-      sieves    = concat
-            [[2 * p, 3 * p..n - 1] | p <- sqrPrimes]
-      sieves'   = zip sieves (repeat False)
-      flags     = accumArray (&&) True (0, n - 1) sieves'
-    in
-    drop 2 (filter (flags!) [0..n - 1])
+-- brute force + unoptimized search
+-- only fast because lazy eval..
+-- runs in 2ms. highly dependant on size of list
 
-sumWhile n (x:xs) accum len
-    | null (x:xs) = (accum,len)
-    | accum < n = sumWhile n xs (x+accum) (len+1)
-    | otherwise = (accum,len)
+list :: [Int]
+list = takeWhile ((>=) 4000) primes
 
-consecutive n primes = map
-    let (accum,len) = sumWhile n primes 0 0
+findSeq len xs
+    | (length ys) < len = 0
+    | (isPrime ss) = ss
+    | otherwise = findSeq len (tail xs)
+    where ys = take len xs
+          ss = sum ys
 
-main = print $ maximum $ consecutive
-
---main = print (primes 1000000)
+-- i probably search longer list than needed this way but starting to look for lengths of len-x
+-- first makes for a 100x faster exit.
+main = print $ head $ [ y | x<-[0..len-1], let y = findSeq (len - x) list, y > 0, y < 1000000]
+    where len = (length list)
