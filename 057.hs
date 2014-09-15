@@ -16,8 +16,6 @@
         In the first one-thousand expansions, how many fractions contain a numerator with more digits than denominator?
 
 --}
-import Data.Ratio
-
 num_digits :: Integer -> Int
 num_digits x = _rec 1 10
     where _rec s y
