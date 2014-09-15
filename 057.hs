@@ -24,8 +24,8 @@ num_digits x = _rec 1 10
             | y < x = _rec (s+1) (y*10)
             | otherwise = s
 
-func :: Int -> Ratio Integer
-func 1 = 1 + 1/2
-func a = 1 + 1 / (1 + (func (a-1)))
+-- reduced an+1 = 1 + 1/(1 + an) to 
+func (p,q) = ((2*q + p),q+p)
 
-main = print $ length [True | x<-[1..1000], let y = func x, (num_digits (numerator y)) > (num_digits (denominator y))]
+main = print $ length $ filter dig_comp $ take 1000 $ iterate func (3,2)
+    where dig_comp (p,q) = (num_digits p) > (num_digits q)
